@@ -1,37 +1,85 @@
-# library-mgnt-system-repo
-A library management system created using C++
-You are tasked with developing a simplified LMS using Object-Oriented Programming. The system should manage book records, member details, and book loans. 
-Requirements:
-1.	Core Functionalities
-o	Books Management:
-	Add, view, update, and delete book records.
-	Store book details (title, author, ISBN, year, status – available/borrowed).
-o	Members Management:
-	Add, view, update, and delete member records.
-	Store member details (name, ID, contact).
-o	Borrowing System:
-	Borrow a book (check availability and update status).
-	Return a book and update records.
-o	Use file handling to persistently store and retrieve book and member data.
-2.	Features
-o	Inheritance:
-	Implement a base class Person with derived classes like Member and (optional) Librarian.
-o	Polymorphism:
-	Use polymorphism to define common behavior for actions like displayDetails() for both books and members.
-o	Exception Handling:
-	Handle errors, such as trying to borrow a book that is not available or invalid member ID input.
-o	Abstract Classes and Interfaces:
-	Create an abstract class LibraryEntity with common methods like addEntity() and removeEntity() to enforce consistency.
-o	File Handling:
-	Save and retrieve book and member records from files (simulate a database).
-o	Implement composition and aggregation:
-	For example, associate each Member with a list of borrowed books.
-o	Simulate database integration:
-	Use a file-based system to maintain logs of all borrowing transactions.
-Evaluation Criteria
-1.	Application of OOP principles (20%)
-2.	Code efficiency and readability (20%)
-3.	System functionality and features (20%)
-4.	Documentation and presentation (20%). Presentation date will be communicated. 
-5.	Collaboration (20%) – Use of collaboration tools is encouraged. 
+# Library Management System (C++ & Qt)
 
+A desktop application for managing books, members, and transactions in a library. Includes a GUI, database integration, and a notification system for book availability.
+
+## Features
+- **Book Management**: Add, remove, and search books (title/author/ISBN).
+- **Member Management**: Register members and track borrowed books.
+- **Borrow/Return System**: Check availability and log transactions.
+- **Notifications**: Members can request alerts when a book becomes available.
+- **Database**: SQLite for storing books, members, and notifications.
+- **Transaction Logs**: Text file logging for borrowing/returning.
+
+## code structure
+LibraryManagementSystem/
+├── include/
+│   ├── Book.h                 # Book class
+│   ├── Member.h               # Member class
+│   ├── Library.h              # Core logic (borrow/return/notifications)
+│   ├── DatabaseManager.h      # MySQL database operations
+│   ├── TransactionLogger.h    # Log file handling
+│   └── GUI/
+│       └── MainWindow.h       # Qt GUI
+├── src/
+│   ├── Book.cpp
+│   ├── Member.cpp
+│   ├── Library.cpp
+│   ├── DatabaseManager.cpp    # MySQL implementation
+│   ├── TransactionLogger.cpp
+│   └── GUI/
+│       └── MainWindow.cpp     # Qt GUI logic
+├── database/
+│   ├── schema.sql             # MySQL schema script
+│   └── config/                # Database credentials (optional)
+├── logs/
+│   └── transactions.log       # Transaction logs
+├── CMakeLists.txt             # CMake build configuration
+└── main.cpp                   # Entry point
+
+# Library Management System (C++ & MySQL)
+
+A desktop application for managing library operations with MySQL integration and Qt GUI.
+
+## Features
+- **Book Management**: Add, remove, and search books.
+- **Member Management**: Register members and track borrowed books.
+- **Borrow/Return**: Check availability and log transactions.
+- **Notifications**: Members receive alerts when reserved books become available.
+- **MySQL Database**: Stores books, members, and notifications.
+- **Transaction Logs**: Text file logging for borrowing/returning.
+
+## Dependencies
+- **MySQL Server**: [Download](https://dev.mysql.com/downloads/mysql/)
+- **MySQL Connector/C++**: [Download](https://dev.mysql.com/downloads/connector/cpp/)
+- **Qt 6**: For GUI (optional) [Download Qt](https://www.qt.io/download)
+- **CMake**: Build system (v3.10+)
+- **Compiler**: GCC (Linux), MinGW (Windows), or Clang (macOS)
+
+## Setup
+
+### 1. MySQL Database Configuration
+- Create a MySQL database and user:
+
+## Key Implementation Tasks
+
+### Backend (Core Logic)
+Complete Book and Member classes.
+Implement Library class logic (borrow/return/notifications).
+Integrate DatabaseManager with MySQL.
+Database (MySQL) : Use schema.sql to create tables.
+
+#### Implement CRUD operations in DatabaseManager.cpp.
+
+#### GUI (Qt)
+Design UI in Qt Creator.
+Connect buttons to backend logic (e.g., "Borrow" → Library::borrowBook()).
+Add a "Notify Me" button for unavailable books.
+
+#### Notifications
+Track requests in Library::notificationRequests.
+Trigger notifications on book return
+
+## Testing
+Unit Tests: Validate Book, Member, and Library logic.
+
+Database Tests:
