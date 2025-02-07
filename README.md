@@ -30,7 +30,7 @@ LibraryManagementSystem/
 │       └── MainWindow.cpp     # Qt GUI logic
 ├── database/
 │   ├── schema.sql             # MySQL schema script
-│   └── config/                # Database credentials (optional)
+│   └── config/                # Database credentials 
 ├── logs/
 │   └── transactions.log       # Transaction logs
 ├── CMakeLists.txt             # CMake build configuration
