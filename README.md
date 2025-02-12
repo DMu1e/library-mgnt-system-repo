@@ -1,85 +1,116 @@
-# Library Management System (C++ & Qt)
+# Library Management System
 
-A desktop application for managing books, members, and transactions in a library. Includes a GUI, database integration, and a notification system for book availability.
+A C++ based library management system that implements Object-Oriented Programming concepts to manage books, members, and library transactions.
 
 ## Features
-- **Book Management**: Add, remove, and search books (title/author/ISBN).
-- **Member Management**: Register members and track borrowed books.
-- **Borrow/Return System**: Check availability and log transactions.
-- **Notifications**: Members can request alerts when a book becomes available.
-- **Database**: SQLite for storing books, members, and notifications.
-- **Transaction Logs**: Text file logging for borrowing/returning.
 
-## code structure
-LibraryManagementSystem/
-├── include/
-│   ├── Book.h                 # Book class
-│   ├── Member.h               # Member class
-│   ├── Library.h              # Core logic (borrow/return/notifications)
-│   ├── DatabaseManager.h      # MySQL database operations
-│   ├── TransactionLogger.h    # Log file handling
-│   └── GUI/
-│       └── MainWindow.h       # Qt GUI
-├── src/
+### User Roles
+- **Member Operations:**
+  - Create membership account
+  - Borrow and return books
+  - View borrowed books
+  - View personal information
+  - Search for books
+  
+- **Librarian Operations:**
+  - Add new books to the library
+  - Remove books from the library
+  - View all books in the system
+  - Find specific books
+  - Remove members
+  - Manage library inventory
+
+### Core Functionality
+- **Book Management:**
+  - Track multiple copies of books
+  - Monitor available and total copies
+  - Store book details (title, author, genre, ISBN, publication year)
+  - Save book data persistently to files
+
+- **Member Management:**
+  - Generate unique member IDs
+  - Store member information (name, address, contact)
+  - Track borrowed books for each member
+  - Manage member accounts
+
+- **Transaction Logging:**
+  - Log all book-related transactions
+  - Track checkouts and returns
+  - Monitor book additions and removals
+  - Timestamp all transactions
+
+## Technical Implementation
+
+### Class Structure
+- **Book Class:** Manages individual book information and availability
+- **Member Class:** Handles member data and book borrowing operations
+- **Library Class:** Controls overall library operations and maintains book/member collections
+- **TransactionLogger Class:** Manages transaction logging and record keeping
+
+### Data Persistence
+- Books data stored in: `books_data.txt`
+- Transaction logs stored in: `Logs/TransactionLogs.txt`
+- File operations handled with proper error checking
+
+### Design Patterns
+- Implements singleton pattern for logging
+- Uses map data structures for efficient book and member management
+
+
+## Building and Running
+
+### Prerequisites
+- C++ compiler with C++17 support
+- Standard Template Library (STL)
+- File system library support
+
+### Compilation
+
+g++ -std=c++17 -Wall -Wextra -o library_system main.cpp Book.cpp Library.cpp Member.cpp TransactionLogger.cpp
+
+### Running the Program
+
+./library_system
+
+
+## File Structure
+
+Library_Management_System/
+├── Include/
+│   ├── Book.hpp
+│   ├── Library.hpp
+│   ├── Member.hpp
+│   └── TransactionLogger.hpp
+├── Source/
 │   ├── Book.cpp
-│   ├── Member.cpp
 │   ├── Library.cpp
-│   ├── DatabaseManager.cpp    # MySQL implementation
+│   ├── Member.cpp
 │   ├── TransactionLogger.cpp
-│   └── GUI/
-│       └── MainWindow.cpp     # Qt GUI logic
-├── database/
-│   ├── schema.sql             # MySQL schema script
-│   └── config/                # Database credentials 
-├── logs/
-│   └── transactions.log       # Transaction logs
-├── CMakeLists.txt             # CMake build configuration
-└── main.cpp                   # Entry point
+│   └── main.cpp
+├── Data/
+│   └── books_data.txt
+└── Logs/
+    └── TransactionLogs.txt
 
-# Library Management System (C++ & MySQL)
 
-A desktop application for managing library operations with MySQL integration and Qt GUI.
+## Error Handling
+- File operation error handling
+- Invalid input validation
+- Member and book existence verification
+- Transaction verification
 
-## Features
-- **Book Management**: Add, remove, and search books.
-- **Member Management**: Register members and track borrowed books.
-- **Borrow/Return**: Check availability and log transactions.
-- **Notifications**: Members receive alerts when reserved books become available.
-- **MySQL Database**: Stores books, members, and notifications.
-- **Transaction Logs**: Text file logging for borrowing/returning.
+## Future Improvements
+1. Implement user authentication
+2. Add fine calculation for overdue books
+3. Include email notification system
+4. Add book reservation system
+5. Implement book categorization and advanced search
+6. Add database support instead of file-based storage
+7. Include unit tests
+8. Add GUI interface
 
-## Dependencies
-- **MySQL Server**: [Download](https://dev.mysql.com/downloads/mysql/)
-- **MySQL Connector/C++**: [Download](https://dev.mysql.com/downloads/connector/cpp/)
-- **Qt 6**: For GUI (optional) [Download Qt](https://www.qt.io/download)
-- **CMake**: Build system (v3.10+)
-- **Compiler**: GCC (Linux), MinGW (Windows), or Clang (macOS)
+## Contributing
+Contributions are welcome. Please feel free to submit a Pull Request.
 
-## Setup
-
-### 1. MySQL Database Configuration
-- Create a MySQL database and user:
-
-## Key Implementation Tasks
-
-### Backend (Core Logic)
-Complete Book and Member classes.
-Implement Library class logic (borrow/return/notifications).
-Integrate DatabaseManager with MySQL.
-Database (MySQL) : Use schema.sql to create tables.
-
-#### Implement CRUD operations in DatabaseManager.cpp.
-
-#### GUI (Qt)
-Design UI in Qt Creator.
-Connect buttons to backend logic (e.g., "Borrow" → Library::borrowBook()).
-Add a "Notify Me" button for unavailable books.
-
-#### Notifications
-Track requests in Library::notificationRequests.
-Trigger notifications on book return
-
-## Testing
-Unit Tests: Validate Book, Member, and Library logic.
-
-Database Tests:
+## License
+This project is available under the MIT License.
