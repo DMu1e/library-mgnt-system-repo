@@ -2,7 +2,6 @@
 #include "../Include/Book.hpp"
 #include "../Include/Member.hpp"
 #include "../Include/TransactionLogger.hpp"
-#include "../Include/Database.hpp"
 
 #include <iostream>
 #include <string>
@@ -10,11 +9,33 @@
 #include <fstream>
 
 using namespace std;
-const string BOOKS_FILE = "../Data/books_data.txt";
+const string BOOKS_FILE = "books_data.txt";
 
-Library::Library()
+Library::Library() : logger()
 {
-    loadBooksFromFile(); // Load books when Library is created
+    // Initialize some members
+    addMember("John Doe", "123 Main St", 1234567890LL);   // Use long long for contact numbers
+    addMember("Jane Smith", "456 Oak Ave", 9876543210LL); // Use long long for contact numbers
+    addMember("Bob Wilson", "789 Pine Rd", 5555555555LL); // Use long long for contact numbers
+
+    // Initialize some books directly in the map
+    Book book1;
+    book1.set_title("The Great Gatsby");
+    book1.set_author("F. Scott Fitzgerald");
+    book1.set_genre("Fiction");
+    book1.set_isbn("978-0743273565");
+    book1.set_year("1925");
+    books["978-0743273565"] = book1;
+
+    Book book2;
+    book2.set_title("1984");
+    book2.set_author("George Orwell");
+    book2.set_genre("Science Fiction");
+    book2.set_isbn("978-0451524935");
+    book2.set_year("1949");
+    books["978-0451524935"] = book2;
+
+    loadBooksFromFile(); // Load additional books from file
 }
 
 void Library::loadBooksFromFile()
@@ -44,9 +65,12 @@ void Library::loadBooksFromFile()
         book.set_genre(genre);
         book.set_isbn(isbn);
         book.set_year(year);
-        // Add to map
+        book.totalCopies = stoi(totalCopiesStr);
+        book.availableCopies = stoi(availableCopiesStr);
+
         books[isbn] = book;
     }
+
     file.close();
 }
 
@@ -72,7 +96,6 @@ void Library::saveBooksToFile()
     file.close();
 }
 
-// mod this function to add to map and file
 void Library::addBook(const string &memberID, const string &title, const string &author, const string &genre, const string &isbn, const string &year)
 {
     string action = "add";
@@ -89,6 +112,8 @@ void Library::addBook(const string &memberID, const string &title, const string 
     }
     else
     {
+        book.totalCopies = 1;
+        book.availableCopies = 1;
         books[isbn] = book;
     }
 
@@ -96,7 +121,6 @@ void Library::addBook(const string &memberID, const string &title, const string 
     saveBooksToFile();
 }
 
-// mod this function to add to map and file
 void Library::removeBook(const string &memberID, const string &isbn)
 {
     string action = "remove";
@@ -113,58 +137,73 @@ void Library::removeBook(const string &memberID, const string &isbn)
     }
 }
 
-void Library::addMember(const string &name, const string &address, const int &phone)
+string Library::addMember(const string &name, const string &address, long long contact)
 {
-    Member member(name, address, phone);
-    members.push_back(member);
-}
-void Library::removeMember(const string &name)
-{
-    for (int i = 0; i < members.size(); i++)
-    {
-        if (members[i].get_name() == name)
-        {
-            members.erase(members.begin() + i);
-
-            return;
-        }
-    }
-    cout << "Member not found" << endl;
+    Member member(name, address, contact);
+    string memberID = member.getMemberID(); // Generate member ID
+    members[memberID] = member;             // Use memberID as key instead of name
+    return memberID;
 }
 
-void Library::findBook(const string &isbn)
+void Library::removeMember(const string &memberID)
 {
-    auto it = books.find(isbn);
-    if (it != books.end())
+    auto it = members.find(memberID);
+    if (it != members.end())
     {
-        Book &book = it->second;
-        cout << "Title: " << book.get_title() << endl;
-        cout << "Author: " << book.get_author() << endl;
-        cout << "Genre: " << book.get_genre() << endl;
-        cout << "Year: " << book.get_year() << endl;
-        cout << "Total copies: " << book.get_totalCopies() << endl;
-        cout << "Available copies: " << book.get_availableCopies() << endl;
+        members.erase(it);
     }
     else
+    {
+        cout << "Member not found" << endl;
+    }
+}
+
+void Library::findBook(const string &title)
+{
+    bool found = false;
+    for (auto &[isbn, book] : books)
+    {
+        if (book.get_title() == title)
+        {
+            cout << "Title: " << book.get_title() << endl;
+            cout << "Author: " << book.get_author() << endl;
+            cout << "Genre: " << book.get_genre() << endl;
+            cout << "ISBN: " << book.get_isbn() << endl;
+            cout << "Year: " << book.get_year() << endl;
+            found = true;
+            break;
+        }
+    }
+    if (!found)
     {
         cout << "Book not found" << endl;
     }
 }
 
-void Library::checkOutBook(const string &title, const string &isbn, const string &name)
+void Library::checkOutBook(const string &isbn, const string &memberID)
 {
     string action = "checkout";
     auto it = books.find(isbn);
     if (it != books.end())
     {
-        if (it->second.isAvailable(title, isbn))
-        {
+        if (it->second.get_availableCopies() > 0)
+        { // Check actual availability
             it->second.removeCopy();
-            logger.logTransaction(name, isbn, action);
+            auto memberIt = members.find(memberID);
+            if (memberIt != members.end())
+            {
+                // MODIFY MEMBER OBJECT IN PLACE
+                memberIt->second.borrowBook(isbn);
+                logger.logTransaction(memberID, isbn, action);
+            }
+            else
+            {
+                cout << "Member not found" << endl;
+            }
         }
         else
         {
-            cout << "Book not available" << endl;
+            cout << "No copies available" << endl;
         }
     }
     else
@@ -172,20 +211,31 @@ void Library::checkOutBook(const string &title, const string &isbn, const string
         cout << "Book not found" << endl;
     }
 }
-void Library::checkInBook(const string &isbn, const string &name)
+
+void Library::checkInBook(const string &isbn, const string &memberID)
 {
     string action = "checkin";
     auto it = books.find(isbn);
     if (it != books.end())
     {
         it->second.addCopy();
-        logger.logTransaction(name, isbn, action);
+        auto memberIt = members.find(memberID);
+        if (memberIt != members.end())
+        {
+            memberIt->second.returnBook(isbn);
+            logger.logTransaction(memberID, isbn, action);
+        }
+        else
+        {
+            cout << "Member not found" << endl;
+        }
     }
     else
     {
         cout << "Book not found" << endl;
     }
 }
+
 void Library::display_books()
 {
     for (auto &[isbn, book] : books)
@@ -193,23 +243,31 @@ void Library::display_books()
         cout << "Title: " << book.get_title() << endl;
         cout << "Author: " << book.get_author() << endl;
         cout << "Genre: " << book.get_genre() << endl;
+        cout << "ISBN: " << book.get_isbn() << endl;
         cout << "Year: " << book.get_year() << endl;
         cout << "Total copies: " << book.get_totalCopies() << endl;
         cout << "Available copies: " << book.get_availableCopies() << endl;
-        cout << "Borrowed: " << book.get_borrowed() << endl;
         cout << endl;
     }
 }
+
 void Library::display_members()
 {
-    for (int i = 0; i < members.size(); i++)
+    for (auto &pair : members)
     {
-        cout << "Name: " << members[i].get_name() << endl;
-        cout << "Address: " << members[i].get_address() << endl;
-        cout << "Contact: " << members[i].get_contact() << endl;
-        cout << "ID: " << members[i].get_ID() << endl;
+        Member &member = pair.second;
+        cout << "ID: " << member.getMemberID() << endl;
+        cout << "Name: " << member.get_name() << endl;
+        cout << "Address: " << member.get_address() << endl;
+        cout << "Contact: " << member.get_contact() << endl;
         cout << "Borrowed books: " << endl;
-        members[i].display_borrowed_books();
+        member.display_borrowed_books();
         cout << endl;
     }
+}
+
+Member *Library::getMember(const string &memberID)
+{
+    auto it = members.find(memberID);
+    return (it != members.end()) ? &it->second : nullptr;
 }
